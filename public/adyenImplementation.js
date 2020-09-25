@@ -34,3 +34,14 @@ function handleServerResponse(res, component) {
     }
   }
 }
+
+// Event handlers called when the shopper selects the pay button,
+// or when additional information is required to complete the payment
+async function handleSubmission(state, component, url) {
+  try {
+    const response = await callServer(url, state.data);
+    return handleServerResponse(response, component);
+  } catch (error) {
+    console.error(error);
+  }
+}
