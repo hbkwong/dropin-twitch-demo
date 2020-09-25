@@ -68,3 +68,9 @@ async function handleSubmission(state, component, url) {
     console.error(error);
   }
 }
+
+const checkout = new AdyenCheckout(configuration);
+
+const integration = checkout
+  .create("dropin")
+  .mount(document.getElementById("dropin"));
