@@ -4,6 +4,7 @@ const hbs = require("express-handlebars");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
 const { uuid } = require("uuidv4");
+const { Client, Config, CheckoutAPI } = require("@adyen/api-library");
 const app = express();
 
 // Set up request logging
@@ -19,6 +20,13 @@ app.use(express.static(path.join(__dirname, "/public")));
 dotenv.config({
   path: "./.env",
 });
+
+// Adyen Node.js API library boilerplate (configuration, etc.)
+const config = new Config();
+config.apiKey = process.env.API_KEY;
+const client = new Client({ config });
+client.setEnvironment("TEST");
+const checkout = new CheckoutAPI(client);
 
 app.engine(
   "handlebars",
