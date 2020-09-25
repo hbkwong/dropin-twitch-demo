@@ -39,6 +39,23 @@ app.engine(
 
 app.set("view engine", "handlebars");
 
+// Get payment methods
+app.get("/", async (req, res) => {
+  try {
+    const response = await checkout.paymentMethods({
+      channel: "Web",
+      merchantAccount: process.env.MERCHANT_ACCOUNT,
+    });
+    res.render("payment", {
+      clientKey: process.env.CLIENT_KEY,
+      response: JSON.stringify(response),
+    });
+  } catch (err) {
+    console.error(`Error: ${err.message}, error code: ${err.errorCode}`);
+    res.status(err.statusCode).json(err.message);
+  }
+});
+
 // Start server
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
