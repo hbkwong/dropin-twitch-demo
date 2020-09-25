@@ -123,6 +123,26 @@ app.all("/api/handleShopperRedirect", async (req, res) => {
   }
 });
 
+// Handle submitting additional details
+app.post("/api/submitAdditionalDetails", async (req, res) => {
+  // Create the payload for submitting payment details
+  const payload = {};
+  payload["details"] = req.body.details;
+  payload["paymentData"] = req.body.paymentData;
+
+  try {
+    // Return the response back to client (for further action handling or presenting result to shopper)
+    const response = await checkout.paymentsDetails(payload);
+    let resultCode = response.resultCode;
+    let action = response.action || null;
+
+    res.json({ action, resultCode });
+  } catch (err) {
+    console.error(`Error: ${err.message}, error code: ${err.errorCode}`);
+    res.status(err.statusCode).json(err.message);
+  }
+});
+
 // Authorised result page
 app.get("/success", (req, res) => res.render("success"));
 
