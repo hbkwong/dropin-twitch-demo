@@ -1,3 +1,26 @@
+const paymentMethodsResponse = JSON.parse(
+  document.getElementById("paymentMethodsResponse").innerHTML
+);
+const clientKey = document.getElementById("clientKey").innerHTML;
+
+const configuration = {
+  paymentMethodsResponse,
+  clientKey,
+  locale: "en_US",
+  environment: "test",
+  paymentMethodsConfiguration: {
+    card: {
+      hasHolderName: true,
+    },
+  },
+  onSubmit: (state, component) => {
+    handleSubmission(state, component, "/api/initiatePayment");
+  },
+  onAdditionalDetails: (state, component) => {
+    handleSubmission(state, component, "/api/submitAdditionalDetails");
+  },
+};
+
 async function callServer(url, data) {
   try {
     const response = await fetch(url, {
