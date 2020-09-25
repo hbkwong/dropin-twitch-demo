@@ -123,6 +123,18 @@ app.all("/api/handleShopperRedirect", async (req, res) => {
   }
 });
 
+// Authorised result page
+app.get("/success", (req, res) => res.render("success"));
+
+// Pending result page
+app.get("/pending", (req, res) => res.render("pending"));
+
+// Error result page
+app.get("/error", (req, res) => res.render("error"));
+
+// Refused result page
+app.get("/failed", (req, res) => res.render("failed"));
+
 // Start server
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
