@@ -39,6 +39,8 @@ app.engine(
 
 app.set("view engine", "handlebars");
 
+const paymentDataStore = {};
+
 // Get payment methods
 app.get("/", async (req, res) => {
   try {
@@ -50,6 +52,38 @@ app.get("/", async (req, res) => {
       clientKey: process.env.CLIENT_KEY,
       response: JSON.stringify(response),
     });
+  } catch (err) {
+    console.error(`Error: ${err.message}, error code: ${err.errorCode}`);
+    res.status(err.statusCode).json(err.message);
+  }
+});
+
+app.post("/api/initiatePayment", async (req, res) => {
+  try {
+    const orderRef = uuid();
+    // Ideally the data passed here should be computed based on business logic
+    const response = await checkout.payments({
+      amount: { currency: "EUR", value: 1000 }, // value is 10€ in minor units
+      reference: orderRef,
+      merchantAccount: process.env.MERCHANT_ACCOUNT,
+      channel: "Web",
+      additionalData: {
+        allow3DS2: true,
+      },
+      returnUrl: `http://localhost:8080/api/handleShopperRedirect?orderRef=${orderRef}`,
+      browserInfo: req.body.browserInfo,
+      paymentMethod: req.body.paymentMethod,
+    });
+
+    let resultCode = response.resultCode;
+    let action = null;
+
+    if (response.action) {
+      action = response.action;
+      paymentDataStore[orderRef] = action.paymentData;
+    }
+
+    res.json({ resultCode, action });
   } catch (err) {
     console.error(`Error: ${err.message}, error code: ${err.errorCode}`);
     res.status(err.statusCode).json(err.message);
