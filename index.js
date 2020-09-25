@@ -90,6 +90,39 @@ app.post("/api/initiatePayment", async (req, res) => {
   }
 });
 
+app.all("/api/handleShopperRedirect", async (req, res) => {
+  // Create the payload for submitting payment details
+  const payload = {};
+  payload["details"] = req.method === "GET" ? req.query : req.body;
+
+  const orderRef = req.query.orderRef;
+  payload["paymentData"] = paymentDataStore[orderRef];
+  delete paymentDataStore[orderRef];
+
+  try {
+    const response = await checkout.paymentsDetails(payload);
+    // Conditionally handle different result codes for the shopper
+    switch (response.resultCode) {
+      case "Authorised":
+        res.redirect("/success");
+        break;
+      case "Pending":
+      case "Received":
+        res.redirect("/pending");
+        break;
+      case "Refused":
+        res.redirect("/failed");
+        break;
+      default:
+        res.redirect("/error");
+        break;
+    }
+  } catch (err) {
+    console.error(`Error: ${err.message}, error code: ${err.errorCode}`);
+    res.redirect("/error");
+  }
+});
+
 // Start server
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
